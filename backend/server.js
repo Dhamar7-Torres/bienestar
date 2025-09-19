@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 4000;
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // ← PUERTO ACTUALIZADO
     credentials: true
 }));
 app.use(morgan('combined'));
@@ -41,7 +41,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 404 handler
 app.use('*', (req, res) => {
     res.status(404).json({
         error: 'Ruta no encontrada',
@@ -52,6 +51,7 @@ app.use('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log(`📊 Entorno: ${process.env.NODE_ENV}`);
+    console.log(`🌐 CORS habilitado para: http://localhost:5173`); // ← PUERTO ACTUALIZADO
 });
 
 module.exports = app;
