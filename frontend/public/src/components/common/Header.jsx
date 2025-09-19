@@ -1,12 +1,13 @@
 import React from 'react';
-import { Bell, User, Menu } from 'lucide-react';
+import { Bell, User, Menu, LogOut } from 'lucide-react';
 
 export const Header = ({ 
   title, 
   user = null, 
   alertsCount = 0, 
   onMenuToggle,
-  onNotificationsClick 
+  onNotificationsClick,
+  onLogout 
 }) => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -48,6 +49,17 @@ export const Header = ({
                   <p className="text-sm font-medium text-gray-900">{user.nombre}</p>
                   <p className="text-xs text-gray-500">{user.email}</p>
                 </div>
+              )}
+              
+              {/* Logout Button */}
+              {onLogout && (
+                <button
+                  onClick={onLogout}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-md transition-colors"
+                  title="Cerrar sesión"
+                >
+                  <LogOut className="h-5 w-5" />
+                </button>
               )}
             </div>
           </div>

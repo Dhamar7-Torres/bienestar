@@ -3,17 +3,20 @@ import { Header } from './components/common/Header';
 import { Navigation } from './components/common/Navigation';
 import { LoadingPage } from './components/common/LoadingSpinner';
 
-// Student Components
+// Componente de Login
+import { LoginPage } from './components/auth/LoginPage';
+
+// Componentes de Estudiante
 import { Dashboard } from './components/student/Dashboard';
 import { WeeklyEvaluation } from './components/student/WeeklyEvaluation';
 import { Resources } from './components/student/Resources';
 
-// Admin Components
+// Componentes de Admin
 import { GeneralSummary } from './components/admin/GeneralSummary';
 import { StudentsList } from './components/admin/StudentsList';
 import { AlertsSystem } from './components/admin/AlertsSystem';
 
-// Auth Hook
+// Hooks
 import { useAuth, AuthProvider } from './hooks/useAuth';
 
 const AppContent = () => {
@@ -21,11 +24,11 @@ const AppContent = () => {
   const [activeView, setActiveView] = useState(isAdmin ? 'summary' : 'dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Simulación de login para desarrollo
+  // Simulación de login automático para desarrollo (opcional)
   React.useEffect(() => {
     if (!user && !loading) {
-      // Para demo: login automático como estudiante
-      // En producción, esto vendría de un form de login real
+      // Comentar estas líneas para mostrar la pantalla de login
+      /*
       const demoUser = {
         id: 1,
         nombre: 'Ana García López',
@@ -34,17 +37,17 @@ const AppContent = () => {
         semestre: 6
       };
       
-      // Cambiar entre 'student' y 'admin' para probar diferentes vistas
-      login(demoUser, 'student'); // o 'admin' para vista administrativa
+      login(demoUser, 'student'); // o 'admin'
+      */
     }
   }, [user, loading, login]);
 
   if (loading) {
-    return <LoadingPage message="Cargando aplicación..." />;
+    return <LoadingPage message="Cargando Mi Bienestar DACYTI..." />;
   }
 
   if (!user) {
-    return <LoginScreen onLogin={login} />;
+    return <LoginPage onLogin={login} />;
   }
 
   const handleViewChange = (viewId) => {
@@ -54,11 +57,18 @@ const AppContent = () => {
   const handleEvaluationComplete = (evaluation) => {
     // Cambiar a dashboard después de completar evaluación
     setActiveView('dashboard');
-    // Aquí podrías agregar notificaciones, etc.
+    console.log('Evaluación completada:', evaluation);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setActiveView('dashboard');
+    setSidebarOpen(true);
   };
 
   const renderContent = () => {
     if (isAdmin) {
+      // Vistas de Administrador
       switch (activeView) {
         case 'summary':
           return <GeneralSummary />;
@@ -66,10 +76,24 @@ const AppContent = () => {
           return <StudentsList />;
         case 'alerts':
           return <AlertsSystem />;
+        case 'resources-admin':
+          return (
+            <div className="p-6">
+              <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Gestión de Recursos
+                </h2>
+                <p className="text-gray-600">
+                  Esta funcionalidad estará disponible próximamente.
+                </p>
+              </div>
+            </div>
+          );
         default:
           return <GeneralSummary />;
       }
     } else {
+      // Vistas de Estudiante
       switch (activeView) {
         case 'dashboard':
           return <Dashboard studentId={user.id} />;
@@ -94,9 +118,10 @@ const AppContent = () => {
       <Header
         title="Mi Bienestar DACYTI"
         user={user}
-        alertsCount={5} // Este valor vendría de un hook o estado global
+        alertsCount={5}
         onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
         onNotificationsClick={() => isAdmin ? setActiveView('alerts') : console.log('Notifications')}
+        onLogout={handleLogout}
       />
 
       <div className="flex">
@@ -112,7 +137,9 @@ const AppContent = () => {
         {/* Main Content */}
         <div className={`flex-1 ${sidebarOpen ? 'lg:ml-64' : ''} min-h-screen`}>
           <main className="pt-0">
-            {renderContent()}
+            <div className="fade-in">
+              {renderContent()}
+            </div>
           </main>
         </div>
       </div>
@@ -124,72 +151,6 @@ const AppContent = () => {
           onClick={() => setSidebarOpen(false)}
         />
       )}
-    </div>
-  );
-};
-
-// Simple Login Screen para desarrollo
-const LoginScreen = ({ onLogin }) => {
-  const [role, setRole] = useState('student');
-
-  const handleLogin = (selectedRole) => {
-    const demoUsers = {
-      student: {
-        id: 1,
-        nombre: 'Ana García López',
-        email: 'ana.garcia@universidad.edu',
-        carrera: 'Ingeniería de Sistemas',
-        semestre: 6
-      },
-      admin: {
-        id: 100,
-        nombre: 'Dr. Carlos Administrador',
-        email: 'admin@universidad.edu',
-        departamento: 'Bienestar Estudiantil'
-      }
-    };
-    
-    onLogin(demoUsers[selectedRole], selectedRole);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Mi Bienestar DACYTI</h2>
-          <p className="mt-2 text-gray-600">
-            Sistema de detección automática de factores de riesgo psicosocial
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Selecciona tu rol para la demo:
-            </label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-            >
-              <option value="student">Estudiante</option>
-              <option value="admin">Coordinador/Admin</option>
-            </select>
-          </div>
-          
-          <button
-            onClick={() => handleLogin(role)}
-            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Ingresar como {role === 'student' ? 'Estudiante' : 'Administrador'}
-          </button>
-        </div>
-        
-        <div className="text-center text-sm text-gray-500">
-          <p>Esta es una versión de demostración.</p>
-          <p>En producción, aquí habría un login real con credenciales.</p>
-        </div>
-      </div>
     </div>
   );
 };
